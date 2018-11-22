@@ -36,7 +36,7 @@ double f1(double t,double y1,double y2)           //equation 1
 double f2(double t,double y1,double y2)           //equation 2
 {
 	double lifetime;
-    lifetime=1/(All.decaylifetime*(3.155e16))*All.UnitTime_in_s/Omegainit.h;
+    lifetime=1/(All.decaylifetime*(3.15576e16))*All.UnitTime_in_s/Omegainit.h;
 	return -lifetime*y1/(pow(1 + t, 2)*Hubble(1/(1+t),y1,y2));
 }
 void rk(double t0,double t,double* y1,double *y2)              
@@ -256,7 +256,7 @@ void find_new_omega_and_change_mass()
     double Time_to_now;
     if(ThisTask==0)
     {
-    gamma=1/(All.decaylifetime*(3.155e16))*All.UnitTime_in_s/Omegainit.h;
+    gamma=1/(All.decaylifetime*(3.15576e16))*All.UnitTime_in_s/Omegainit.h;
     Time_to_now=gauss_integral(1/(All.Time-All.TimeStep)-1,1/All.Time-1);
     reducefactor=(1-All.OmegaDm/(All.OmegaDm+All.OmegaBaryon))+All.OmegaDm/(All.OmegaDm+All.OmegaBaryon)*exp(-gamma*Time_to_now);
     }
