@@ -171,7 +171,9 @@ void set_units(void)
   /* convert some physical input parameters to internal units */
 
   All.Hubble = HUBBLE * All.UnitTime_in_s;
-
+  #ifdef DDM
+  All.OldHubble = All.Hubble;
+  #endif
   if(ThisTask == 0)
     {
       printf("\nHubble (internal units) = %g\n", All.Hubble);
@@ -595,11 +597,11 @@ void read_parameter_file(char *fname)
       strcpy(tag[nt], "decaylifetime");
       addr[nt] = &All.decaylifetime;
       id[nt++] = DOUBLE;
-      #endif
+      
       strcpy(tag[nt], "OmegaR");
       addr[nt] = &All.OmegaR;
       id[nt++] = DOUBLE;
-      
+      #endif
 
 
       

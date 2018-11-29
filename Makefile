@@ -11,7 +11,7 @@
 #--------------------------------------- Basic operation mode of code
 OPT   +=  -DPERIODIC 
 OPT   +=  -DUNEQUALSOFTENINGS
-OPT   +=  -DDM
+OPT   +=  -DDDM
 
 
 #--------------------------------------- Things that are always recommended

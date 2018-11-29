@@ -20,23 +20,24 @@ double hubble_function(double a)
 }
 
 #ifdef DDM
+//In the dacaying model, unit of all parameters have h0, which is hubble paremeter of non-decaying model
 double Hubble(double a,double y1,double y2)
 {
 	double hubble;
-	hubble=All.Hubble*sqrt((y1+Omegainit.Omegab)*pow(a,-3)+y2*pow(a,-4)+Omegainit.Omegalambda);
+	hubble=All.OldHubble * Omegainit.h / All.OldHubbleParam * sqrt((y1+Omegainit.Omegab)*pow(a,-3)+y2*pow(a,-4)+Omegainit.Omegalambda);
 	return hubble;
 }
 double f1(double t,double y1,double y2)           //equation 1
 {
 	double lifetime;
-    lifetime=1/(All.decaylifetime*(3.15576e16))*All.UnitTime_in_s/Omegainit.h;
+    lifetime=1/(All.decaylifetime*(3.15576e16))*All.UnitTime_in_s/All.OldHubbleParam;
 	return lifetime*y1/((t+1)*Hubble(1/(1+t),y1,y2));
 }
 
 double f2(double t,double y1,double y2)           //equation 2
 {
 	double lifetime;
-    lifetime=1/(All.decaylifetime*(3.15576e16))*All.UnitTime_in_s/Omegainit.h;
+    lifetime=1/(All.decaylifetime*(3.15576e16))*All.UnitTime_in_s/All.OldHubbleParam;
 	return -lifetime*y1/(pow(1 + t, 2)*Hubble(1/(1+t),y1,y2));
 }
 void rk(double t0,double t,double* y1,double *y2)              
@@ -48,6 +49,8 @@ void rk(double t0,double t,double* y1,double *y2)
 	double *x8;
 	double *vh;
 	double *v8;
+	x8 == NULL;
+	v8 == NULL;
 	for(j=1;j<=30;j++)
 	{
 		n=100*(pow(2,j-1));
@@ -135,7 +138,8 @@ void findh()
 {
 	double h0,h1,h2;
 	h0=All.HubbleParam;
-    int i,hstage;
+    All.OldHubbleParam = h0;
+	int i,hstage;
 	hstage=1;
 	double omegadmfh,omegarfh,sum;
     double omegalambda0,omegab0,omegadm0,omegar0;
@@ -145,12 +149,13 @@ void findh()
     omegalambda0=All.OmegaLambda*h0*h0;
     omegab0=All.OmegaBaryon*h0*h0;
     omegar0=All.OmegaR*h0*h0;
+	sum = 0;
 	for(i=1;fabs(sum-1)>(1e-10);i++)
 	{
 		if(hstage==1)
 		{
 			Omegainit.h=h0-0.1*(i-1);
-			Omegainit.Omegalamda=omegalambda0/(Omegainit.h*Omegainit.h);
+			Omegainit.Omegalambda=omegalambda0/(Omegainit.h*Omegainit.h);
 			Omegainit.Omegab=omegab0/(Omegainit.h*Omegainit.h);
 			omegadmfh=omegadm0/(Omegainit.h*Omegainit.h);
 			omegarfh=omegar0/(Omegainit.h*Omegainit.h);
@@ -166,7 +171,7 @@ void findh()
 		if(hstage==2)
 		{
 			Omegainit.h=(h1+h2)/2;
-			Omegainit.Omegalamda=omegalambda0/(Omegainit.h*Omegainit.h);
+			Omegainit.Omegalambda=omegalambda0/(Omegainit.h*Omegainit.h);
 			Omegainit.Omegab=omegab0/(Omegainit.h*Omegainit.h);
 			omegadmfh=omegadm0/(Omegainit.h*Omegainit.h);
 			omegarfh=omegar0/(Omegainit.h*Omegainit.h);
@@ -181,16 +186,17 @@ void findh()
     All.OmegaBaryon=omegab0/(Omegainit.h*Omegainit.h);
     All.OmegaDm=omegadm0/(Omegainit.h*Omegainit.h);
     All.OmegaLambda=omegalambda0/(Omegainit.h*Omegainit.h);
-    All.OmegaR=omegar0/(Omegainit.h*Omegainit.h)；
-	Omegalambda=All.OmegaLambda;
-    Omegab=All.OmegaBaryon;
-    Omegadm=All.OmegaDm;
-    Omegar=All.OmegaR;
-    printf("h0=%g\n",h);
-    printf("lifetime(internal units)=%g\n",1/(All.decaylifetime*(3.155e16))*All.UnitTime_in_s/Omegainit.h);
+    All.OmegaR=omegar0/(Omegainit.h*Omegainit.h);
+    All.Hubble = All.OldHubble * Omegainit.h / All.OldHubbleParam;
+    Omegainit.Omegab=omegab0/(Omegainit.h*Omegainit.h);
+    Omegainit.Omegadm=omegadm0/(Omegainit.h*Omegainit.h);
+    Omegainit.Omegalambda=omegalambda0/(Omegainit.h*Omegainit.h);
+    Omegainit.Omegar=omegar0/(Omegainit.h*Omegainit.h);
+    printf("h=%g\n",All.HubbleParam);
+    printf("lifetime(internal units)=%g\n",1/(All.decaylifetime*(3.15576e16))*All.UnitTime_in_s/All.OldHubbleParam);
     }
-    MPI_Bcast(&All, sizeof(struct global_data_all_processes), MPI_BYTE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&Omegainit,sizeof(struct Omegainit),MPI_BYTE,0,MPI_COMM_WORLD);
+    MPI_Bcast(&All, sizeof(All), MPI_BYTE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&Omegainit,sizeof(Omegainit),MPI_BYTE,0,MPI_COMM_WORLD);
 
 }
 
@@ -235,8 +241,8 @@ double gauss_integral(double t0,double t1)  //5-point gauss integral
             {
                 y=y+dt/2*weight[k]*integral_function(t0,dt/2*points[k]+(tl+tr)/2);
             }
-        }
-        if(j==1) ylast=y;
+        }        
+	if(j==1) ylast=y;
         else
         {
             if(fabs(y/ylast-1)<1e-8) break;
@@ -248,6 +254,9 @@ double gauss_integral(double t0,double t1)  //5-point gauss integral
 /* find omega of current time in decaying dark matter and reduce the mass of particles*/
 void find_new_omega_and_change_mass()
 {
+    if(All.TimeStep > 1e-5)
+    {
+    if(ThisTask == 0) printf("finding new omega and changing mass\n");
     double newomegadm,newomegar;
     newomegadm=Omegainit.Omegadm;
     newomegar=Omegainit.Omegar;
@@ -256,11 +265,15 @@ void find_new_omega_and_change_mass()
     double Time_to_now;
     if(ThisTask==0)
     {
-    gamma=1/(All.decaylifetime*(3.15576e16))*All.UnitTime_in_s/Omegainit.h;
+    gamma=1/(All.decaylifetime*(3.15576e16))*All.UnitTime_in_s   / All.OldHubbleParam;
+    //printf("%.9f\n", All.Time);
+    //printf("%.9f\n", All.TimeStep);
     Time_to_now=gauss_integral(1/(All.Time-All.TimeStep)-1,1/All.Time-1);
+    printf("%.20lf\n", -gamma*Time_to_now);
     reducefactor=(1-All.OmegaDm/(All.OmegaDm+All.OmegaBaryon))+All.OmegaDm/(All.OmegaDm+All.OmegaBaryon)*exp(-gamma*Time_to_now);
+    printf("reducefactor = %.20f\n", reducefactor);
     }
-    MPI_Bcast(&reducefactor,1,MPI_DOUBlE,0,MPI_COMM_WORLD);
+    MPI_Bcast(&reducefactor,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
     int i;
     for(i=0;i<NumPart;i++)
     {
@@ -272,5 +285,6 @@ void find_new_omega_and_change_mass()
     rk(1/All.TimeBegin-1,1/All.Time-1,&newomegadm,&newomegar);
     All.OmegaDm=newomegadm;
     All.OmegaR=newomegar;
+    }
 }
 #endif

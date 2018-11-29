@@ -38,7 +38,7 @@ void run(void)
 					 * at the desired time.
 					 */
 			#ifdef DDM
-			find_now_omega_and_change_mass();  //change
+			find_new_omega_and_change_mass();  //change
 			#endif
       every_timestep_stuff();	/* write some info to log-files */
 

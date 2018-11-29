@@ -76,8 +76,8 @@ typedef  long long  peanokey;    /*!< defines the variable type used for Peano-H
 
 /* Some conversion factors */
 
-#define  SEC_PER_MEGAYEAR  3.155e13
-#define  SEC_PER_YEAR      3.155e7
+#define  SEC_PER_MEGAYEAR  3.15576e13
+#define  SEC_PER_YEAR      3.15576e7
 
 #ifndef ASMTH
 #define ASMTH 1.25  /*!< ASMTH gives the scale of the short-range/long-range force split in units of FFT-mesh cells */
@@ -300,7 +300,7 @@ extern struct global_data_all_processes
   double G;                        /*!< Gravity-constant in internal units */
   double UnitTime_in_s;   	   /*!< factor to convert internal time unit to seconds/h */
   double UnitMass_in_g;            /*!< factor to convert internal mass unit to grams/h */
-  double UnitVelocity_in_cm_per_s; /*!< factor to convert intqernal velocity unit to cm/sec */
+  double UnitVelocity_in_cm_per_s; /*!< factor to convert internal velocity unit to cm/sec */
   double UnitLength_in_cm;         /*!< factor to convert internal length unit to cm/h */
   double UnitPressure_in_cgs;      /*!< factor to convert internal pressure unit to cgs units (little 'h' still around!) */
   double UnitDensity_in_cgs;       /*!< factor to convert internal length unit to g/cm^3*h^2 */
@@ -320,7 +320,10 @@ extern struct global_data_all_processes
   double OmegaBaryon;  /*!< baryon density in units of the critical density (at z=0)*/
   double OmegaR;//radiation density of initialtime(probably z=99),always =0 //change
   double HubbleParam;  /*!< little `h', i.e. Hubble constant in units of 100 km/s/Mpc.  Only needed to get absolute physical values for cooling physics */
-  
+  #ifdef DDM
+  double OldHubbleParam;                                                                                                                                                                                      //HubbleParam for non-decay Dark matter model
+  double OldHubble; //Hubble-constant in h/s, as Hubble in h0/s
+  #endif
 
   /* Code options */
 
@@ -624,7 +627,7 @@ extern struct io_header
   int flag_cooling;                    /*!< flags whether cooling was included  */
   int num_files;                       /*!< number of files in multi-file snapshot */
   double BoxSize;                      /*!< box-size of simulation in case periodic boundaries were used */
-  double OmegaDm;                       /*!< matter density in units of critical density */
+  double Omega0;                       /*!< matter density in units of critical density */
   double OmegaLambda;                  /*!< cosmological constant parameter */
   double HubbleParam;                  /*!< Hubble parameter in units of 100 km/sec/Mpc */
   int flag_stellarage;                 /*!< flags whether the file contains formation times of star particles */
@@ -635,7 +638,7 @@ extern struct io_header
   double OmegaR;
   double OmegaBaryon;
   //change
-  char fill[44];	               /*!< fills to 256 Bytes */
+  char fill[36];	               /*!< fills to 256 Bytes */
 }
  header;                               /*!< holds header for snapshot files */
 
